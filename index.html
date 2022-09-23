@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>FE Battle</title>
+</head>
+<body>
+
+<h1>五行元素大戰</h1>
+
+<p id="t1"></p><!playerhp>
+<p id="t2"></p><!enemyhp>
+<p id="t0"></p>
+
+<input type="button" onclick="func(0)" value="金" style="display:inline" id="b1">
+<input type="button" onclick="func(1)" value="木" style="display:inline" id="b2">
+<input type="button" onclick="func(2)" value="土" style="display:inline" id="b3">
+<input type="button" onclick="func(3)" value="水" style="display:inline" id="b4">
+<input type="button" onclick="func(4)" value="火" style="display:inline" id="b5">
+<input type="button" onclick="" value="提升攻擊" style="display:none" id="b6">
+<input type="button" onclick="" value="提升生命" style="display:none" id="b7">
+<p>——————————<br></p>
+
+<p id="t3"></p>
+<p id="t4"></p>
+
+<script>
+
+let j1 = document.getElementById("t1")
+let j2 = document.getElementById("t2")
+let j3 = document.getElementById("t3")
+let j4 = document.getElementById("t4")
+let j0 = document.getElementById("t0")
+
+let mphp = 100
+let mehp = 90
+let patk = 10
+let eatk = 10
+let php = mphp
+let ehp = mehp
+let dmg = 0
+let reg = 0
+let round = 0
+let comboer = ""
+let combo = 0
+let tiecombo = 0
+let exp = 10
+let outk = 0
+let habit = [5,5,5,5,5]
+let masterlv = [1,1,1,1,1]
+let masterxp = [100,0,0,0,0]
+let list = ['金','木','土','水','火']
+let destroy = ['木','土','水','火','金']
+let create = ['土','水','火','金','木']
+
+j1.innerHTML = "你的生命: " + php + " / " + mphp
+j2.innerHTML = "對手生命: " + ehp + " / " + mehp
+j0.innerHTML = "——————————<br><br>點擊按鈕選擇元素"
+
+function func(k){
+	let x = Math.random()
+	x = Math.floor(x*5)
+	round = round + 1
+	
+	outk = k
+	
+	masterxp[k] = masterxp[k] + Math.floor(Math.random()+3)
+	habit[k] = habit[k] + 1
+	mastercheck()
+
+	j3.innerHTML = "<h3>第" + round + "回合</h3>" + "你選擇的元素: " + list[k] + "<br>對手選擇的元素: " + list[x]
+	j4.innerHTML = "　"
+	if(list[x] == destroy[k]){
+		j3.innerHTML = j3.innerHTML + "<br>你的元素剋制對手!<br><br>——————————"
+		atkpowercount("pd")
+		
+	}else if (list[x] == create[k]){
+		j3.innerHTML = j3.innerHTML + "<br>對手的元素生成你的元素!<br><br>——————————"
+		atkpowercount("pc")
+	
+	}else if (list[k] == destroy[x]){
+		j3.innerHTML = j3.innerHTML + "<br>對手的元素剋制你!<br><br>——————————"
+		atkpowercount("ed")
+	
+	}else if (list[k] == create[x]){
+		j3.innerHTML = j3.innerHTML + "<br>你的元素生成對手的元素!<br><br>——————————"
+		atkpowercount("ec")
+	
+	}else if (k==x){
+		j3.innerHTML = j3.innerHTML + "<br>雙方元素相同<br><br>——————————"
+		atkpowercount("tie")
+	}
+}
+
+function atkpowercount(w){
+	if(w == "pc" || w == "pd"){
+		dmg = patk
+		j4.innerHTML = "你的基本攻擊力: " + patk
+		if (w == "pd"){
+			dmg = dmg*2
+			j4.innerHTML = j4.innerHTML + "<br><b>元素相剋</b>效果: 攻擊力 ×2"
+		}else if (w == "pc"){
+			dmg = dmg + Math.floor(eatk*0.5)
+			j4.innerHTML = j4.innerHTML + "<br><b>元素相生</b>效果: 本次攻擊汲取對手50%的基本攻擊力, +" + (eatk*0.5)
+			reg = patk
+		}
+		if (comboer == "p" && combo >= 1){
+			combo = combo + 1
+			j4.innerHTML = "<h3>你的" + combo + "連擊!</h3>" +  j4.innerHTML + "<br><b>" + combo + "連擊</b>效果: 攻擊力 ×" + (1+0.5*(combo-1))
+			dmg = dmg * (1+0.5*(combo-1))
+		}else if (tiecombo >=2){
+			comboer = "p"
+			j4.innerHTML = "<h3>你強勁的攻擊!</h3>" +  j4.innerHTML + "<br><b>" + tiecombo + "連續平手</b>效果: 攻擊力 ×" + (1+0.5*(tiecombo-1))
+			combo = 1
+			dmg = dmg*(1+0.5*(tiecombo-1))
+		}else if (comboer == "e" || comboer == ""){
+			if(comboer == "e" && combo >= 3){
+				comboer = "p"
+				j4.innerHTML = "<h3>你的反擊!</h3>" +  j4.innerHTML + "<br><b>終結對手的" + combo + "連擊</b>效果: 攻擊力 ×" + (1+0.25*(combo-1))
+				dmg = dmg * (1+0.25*(combo-1))
+				combo = 1
+			}else{
+				comboer = "p"
+				j4.innerHTML = "<h3>你的攻擊!</h3>" +  j4.innerHTML
+				combo = 1
+			}
+		}
+	}else if(w == "ec" || w == "ed"){
+		dmg = eatk
+		j4.innerHTML = "對手的基本攻擊力: " + eatk
+		if (w == "ed"){
+			dmg = dmg*2
+			j4.innerHTML = j4.innerHTML + "<br><b>元素相剋</b>效果: 攻擊力 ×2"
+		}else if (w == "ec"){
+			dmg = dmg + Math.floor(patk*0.5)
+			j4.innerHTML = j4.innerHTML + "<br><b>元素相生</b>效果: 本次攻擊汲取你50%的基本攻擊力, +" + Math.floor(eatk*0.5)
+			reg = eatk
+		}
+		if (comboer == "e" && combo >= 1){
+			combo = combo + 1
+			j4.innerHTML = "<h3>對手的" + combo + "連擊!</h3>" +  j4.innerHTML + "<br><b>" + combo + "連擊</b>效果: 攻擊力 ×" + (1+0.5*(combo-1))
+			dmg = dmg * (1+0.5*(combo-1))
+		}else if (tiecombo >=2){
+			comboer = "e"
+			j4.innerHTML = "<h3>對手強勁的攻擊!</h3>" +  j4.innerHTML + "<br><b>" + tiecombo + "連續平手</b>效果: 攻擊力 ×" + (1+0.5*(tiecombo-1))
+			combo = 1
+			dmg = dmg*(1+0.5*(tiecombo-1))
+		}else if (comboer == "p" || comboer == ""){
+			if(comboer == "p" && combo >= 3){
+				comboer = "e"
+				j4.innerHTML = "<h3>對手的反擊!</h3>" +  j4.innerHTML + "<br><b>終結你的" + combo + "連擊</b>效果: 攻擊力 ×" + (1+0.25*(combo-1))
+				dmg = dmg * (1+0.25*(combo-1))
+				combo = 1
+			}else{
+				comboer = "e"
+				j4.innerHTML = "<h3>對手的攻擊!</h3>" +  j4.innerHTML
+				combo = 1
+			}
+		}
+	}
+	
+	if ((w == "pc" || w == "pd") && masterlv[outk]>1){
+		dmg = dmg*(1+(0.1*(masterlv[outk]-1)))
+		j4.innerHTML = j4.innerHTML + "<br><b>"+ list[outk] +"元素熟練LV"+ masterlv[outk] +"</b>效果: 攻擊力 ×" + (1+(0.1*(masterlv[outk]-1)))
+	}
+	
+	if (w == "ec" || w == "ed" || w == "pc" || w == "pd"){
+		dmg = Math.floor(dmg)
+		j4.innerHTML = j4.innerHTML + "<br><br><b>→總計攻擊力: " + dmg + "</b>"
+	}
+	if(w == "tie"){
+		comboer = ""
+		combo = 0
+		tiecombo = tiecombo + 1
+		if(tiecombo >= 2){
+			j4.innerHTML = "<h3>連續平手" + tiecombo + "次!</h3>雙方回復各自5%生命值"
+			php = php + Math.floor(mphp*0.05)
+			ehp = ehp + Math.floor(mehp*0.05)
+		}else if(tiecombo < 2){
+			j4.innerHTML = "<h3>平手</h3>雙方回復各自5%生命值"
+			php = php + Math.floor(mphp*0.05)
+			ehp = ehp + Math.floor(mehp*0.05)
+		}
+	}else{
+		tiecombo = 0
+	}
+	if(w == "pc" || w == "pd"){ehp = ehp-dmg}
+	if(w == "ec" || w == "ed"){php = php-dmg}
+
+	if(w == "pc"){
+		j4.innerHTML = j4.innerHTML + "<br><br>．．．．．<br><br><b>元素相生</b>回復生命: " + patk + "</b>"
+		
+		if (combo >1){
+			reg = Math.floor(reg*(1+0.5*(combo-1)))
+			j4.innerHTML = j4.innerHTML + "<br><b>" + combo + "連擊</b>效果: 回復力 ×" + (1+0.5*(combo-1))
+		}
+		if (masterlv[outk]>1){
+			reg = reg*(1+(0.05*(masterlv[outk]-1)))
+			j4.innerHTML = j4.innerHTML + "<br><b>"+ list[outk] +"元素熟練LV"+ masterlv[outk] +"</b>效果: 回復力 ×" + (1+(0.05*(masterlv[outk]-1)))
+		}
+		j4.innerHTML = j4.innerHTML + "<br><br><b>→總計回復力: +" + reg + "</b>"
+		php = php+reg
+		reg = 0
+		
+	}else if(w == "ec"){
+		j4.innerHTML = j4.innerHTML + "<br><br>．．．．．<br><br><b>元素相生</b>對手回復生命: " + eatk + "</b>"
+		
+		if (combo >1){
+			reg = Math.floor(reg*(1+0.5*(combo-1)))
+			j4.innerHTML = j4.innerHTML + "<br><b>" + combo + "連擊</b>效果: 回復力 ×" + (1+0.5*(combo-1))
+		}
+		ehp = ehp+reg
+		j4.innerHTML = j4.innerHTML + "<br><br><b>→總計回復力: +" + reg + "</b>"
+		reg = 0
+	}
+	if(php <= 0){
+		php = 0
+	}
+	if(ehp <= 0){
+		ehp = 0
+	}
+	if(php >= mphp){
+		php = mphp
+	}
+	if(ehp >= mehp){
+		ehp = mehp
+	}
+	j1.innerHTML = "你的生命: " + php + " / " + mphp
+	j2.innerHTML = "對手生命: " + ehp + " / " + mehp
+	if (ehp == 0){
+		j2.innerHTML = j2.innerHTML + "<br>——————————<br><h2>你擊倒對手了!</h2>"
+		j0.innerHTML = ""
+		showbutton(2)
+	}else if(php == 0){
+		j2.innerHTML = j2.innerHTML + "<br>——————————<br><h2>你被對手擊倒了!</h2>"
+		j0.innerHTML = ""
+		showbutton(3)
+	}
+}
+
+function showbutton(q){
+	if(q == 1){
+		b1.style = ""
+		b2.style = "display:inline"
+		b3.style = "display:inline"
+		b4.style = "display:inline"
+		b5.style = "display:inline"
+		b6.style = "display:none"
+		b7.style = "display:none"
+	}else if(q == 2){
+		b1.style = "display:none"
+		b2.style = "display:none"
+		b3.style = "display:none"
+		b4.style = "display:none"
+		b5.style = "display:none"
+		b6.style = "display:inline"
+		b7.style = "display:inline"
+	}else if(q == 3){
+		b1.style = "display:none"
+		b2.style = "display:none"
+		b3.style = "display:none"
+		b4.style = "display:none"
+		b5.style = "display:none"
+		b6.style = "display:none"
+		b7.style = "display:none"
+
+	}
+
+}
+
+function mastercheck(){
+	for (var i = 0; i < 4; i++) {
+		masterlv[i] = Math.floor(Math.pow((masterxp[i]/20),0.59)+1)
+		
+	}
+	alert (masterlv)
+}
+
+</script>
+</body>
+</html>
